@@ -19,7 +19,7 @@ void initialize_the_tree(int binary_tree[MAX_LENGTH], int a) {
         for(i=0 ; i < size ; ++i){
             scanf("%d%d",&loc,&data);
             
-            if (binary_tree[loc]==-1 && loc!=0){
+            if (loc < MAX_LENGTH && binary_tree[loc]==-1 && loc!=0){
                 parent=(loc-1)/2;
                 if(binary_tree[parent]!=-1)
                     binary_tree[loc]=data;
@@ -36,16 +36,16 @@ void initialize_the_tree(int binary_tree[MAX_LENGTH], int a) {
  */
 void insert_node(int binary_tree[MAX_LENGTH], int loc, char where, int value) {
     int parent;
-    if(where=='i' && binary_tree[loc]==-1 && loc!=0){
+    if(where=='i' && loc < MAX_LENGTH && binary_tree[loc]==-1 && loc!=0){
         parent=(loc-1)/2;
         if(binary_tree[parent]!=-1)
                     binary_tree[loc]=value;
     }
-    else if(where=='i' && binary_tree[loc]==-1 && loc==0)
+    else if(where=='i' && loc==0 && binary_tree[loc]==-1)
         binary_tree[0]=value;
-    else if(where=='l' && loc!=-1 && binary_tree[2*loc+1]==-1 && 2*loc+1 < MAX_LENGTH)
+    else if(where=='l' && loc!=-1 && 2*loc+1 < MAX_LENGTH && binary_tree[2*loc+1]==-1)
         binary_tree[2*loc+1]=value;
-    else if(where=='r' && loc!=-1 && binary_tree[2*loc+2]==-1 && 2*loc+2 < MAX_LENGTH)
+    else if(where=='r' && loc!=-1 && 2*loc+2 < MAX_LENGTH && binary_tree[2*loc+2]==-1)
         binary_tree[2*loc+2]=value;
 }
 
@@ -54,10 +54,12 @@ void insert_node(int binary_tree[MAX_LENGTH], int loc, char where, int value) {
  * descendants will be also purged.  Deleting means putting -1 value to the proper area in the array.
  */
 void delete_node_rec(int binary_tree[MAX_LENGTH], int node) {
-    if(node<MAX_LENGTH && binary_tree[node]!=-1){
+    if(node < MAX_LENGTH && binary_tree[node]!=-1){
         binary_tree[node]=-1;
-        delete_node_rec(binary_tree, (2*node+1));
-        delete_node_rec(binary_tree, (2*node+2));
+        if(2*node+1<MAX_LENGTH)
+            delete_node_rec(binary_tree, (2*node+1));
+        if(2*node+2<MAX_LENGTH)
+            delete_node_rec(binary_tree, (2*node+2));
     }
 }
 
@@ -75,17 +77,16 @@ void tabs(int i){
  * value of the depth will be the height of the tree. Be careful, any sub-tree can be given to the function.
  */
 void draw_binary_tree_rec(int binary_tree[MAX_LENGTH], int root, int depth) {
-    if (binary_tree[root]!=-1 && depth>0){
+    if (root < MAX_LENGTH && binary_tree[root]!=-1 && depth>0){
         if(2*root+1 < MAX_LENGTH){
             draw_binary_tree_rec(binary_tree,2*root+1,depth-1);
             }
             tabs(depth);
-        if(root < MAX_LENGTH)
             printf("%d\n",binary_tree[root]);
         if(2*root+2 < MAX_LENGTH)
             draw_binary_tree_rec(binary_tree,2*root+2,depth-1);
     }
-    else if(binary_tree[root]!=-1 && depth==0 && root < MAX_LENGTH){
+    else if(root < MAX_LENGTH && binary_tree[root]!=-1 && depth==0){
         printf("%d\n",binary_tree[root]);    
     }
 }
@@ -98,9 +99,9 @@ int find_height_of_tree_rec(int binary_tree[MAX_LENGTH], int root) {
     int leftdepth,rightdepth;
     if(root==0 && binary_tree[root]==-1)
         return 0;
-    else if(2*root+1 > MAX_LENGTH)
+    else if(2*root+1 >= MAX_LENGTH)
         return 0;
-    else if(binary_tree[2*root+1]==-1 && binary_tree[2*root+2]==-1){
+    else if(2*root+1 < MAX_LENGTH && binary_tree[2*root+1]==-1 && binary_tree[2*root+2]==-1){
         return 0;
     }
     
@@ -182,13 +183,13 @@ int height_itr(int binary_tree[MAX_LENGTH], int root){
 int breadth_first_search_itr(int binary_tree[MAX_LENGTH], int root, int value) {
     int n,i,layers, result;
     int height = height_itr(binary_tree,root);
-    if(binary_tree[root]==-1)
+    if(root < MAX_LENGTH && binary_tree[root]==-1)
         return -1;
     for(n=0 ; n <= height ; ++n){
         layers = power(2,n)*root+ ( power(2,n)-1 );
         for(i=0 ; i <= power(2,n)-1 ; ++i){
             result = layers + i;
-            if(binary_tree[result]==value)
+            if(result < MAX_LENGTH && binary_tree[result]==value)
                 return result;
         }
     }
@@ -202,11 +203,11 @@ int breadth_first_search_itr(int binary_tree[MAX_LENGTH], int root, int value) {
  * Be careful, any sub-tree can be given to the function.
  */
 int depth_first_search_rec(int binary_tree[MAX_LENGTH], int root, int value) {
-    if(binary_tree[root]==-1 || root > MAX_LENGTH)
+    if(root < MAX_LENGTH && binary_tree[root]==-1)
         return -1;
     else if(2*root+1 < MAX_LENGTH && depth_first_search_rec(binary_tree,2*root+1,value)!=-1)
         return depth_first_search_rec(binary_tree,2*root+1,value);
-    else if(binary_tree[root]==value)
+    else if(root < MAX_LENGTH && binary_tree[root]==value)
         return root;
     else if(2*root+2 < MAX_LENGTH && depth_first_search_rec(binary_tree,2*root+2,value)!=-1)
         return depth_first_search_rec(binary_tree,2*root+2,value);
@@ -225,3 +226,4 @@ void print_binary_tree_values(int binary_tree[MAX_LENGTH]) {
         }
     }
 }
+
